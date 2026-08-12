@@ -10,10 +10,14 @@ from __future__ import annotations
 import logging
 import os
 
-from dnslib import NS, QTYPE, RCODE, RR, SOA, A, TXT
+from dnslib import EDNS0, NS, QTYPE, RCODE, RR, SOA, A, TXT
 from dnslib.server import BaseResolver, DNSLogger, DNSServer
 
 _LOG = logging.getLogger(__name__)
+
+# Advertised EDNS0 UDP payload size. 1232 is the DNS Flag Day 2020 figure,
+# chosen to stay under the smallest common path MTU and avoid IP fragmentation.
+EDNS_UDP_SIZE = 1232
 
 # Challenge values change between runs, so they must not be cached.
 TTL_TXT = 1
@@ -93,15 +97,30 @@ class AcmeDnsResolver(BaseResolver):
 
     # ------------------------------------------------------------------ resolve
 
+    @staticmethod
+    def _echo_edns(request, reply) -> None:
+        """Mirror EDNS0 back when the querier offered it.
+
+        dnslib's reply() drops the additional section, so without this a client
+        that sent an OPT record concludes we do not support EDNS and falls back
+        to a 512-byte UDP limit. Our answers are far smaller than that, so this
+        is about being a correct authoritative server rather than fixing a
+        truncation bug -- Let's Encrypt's validators all use EDNS.
+        """
+        if any(rr.rtype == QTYPE.OPT for rr in request.ar):
+            reply.add_ar(EDNS0(udp_len=EDNS_UDP_SIZE))
+
     def resolve(self, request, handler):  # noqa: ARG002 - dnslib interface
         reply = request.reply()
         try:
-            return self._resolve(request, reply)
+            reply = self._resolve(request, reply)
         except Exception:  # noqa: BLE001 - a bad packet must never kill the listener
             _LOG.exception("Failed to build a reply; returning SERVFAIL")
             reply = request.reply()
             reply.header.rcode = RCODE.SERVFAIL
-            return reply
+
+        self._echo_edns(request, reply)
+        return reply
 
     def _resolve(self, request, reply):
         qname = str(request.q.qname).rstrip(".").lower()

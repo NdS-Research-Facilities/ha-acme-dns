@@ -111,7 +111,7 @@ These are not implementation details; they decide whether the design can work at
 | 1 | **NS delegation for a subdomain at Strato.** | ✅ **SATISFIED — verified in live DNS 2026-08-12.** `auth.example.org. NS auth.example.org.` plus glue `auth.example.org. A 198.51.100.1` (TTL 150) already exist in the `example.org` zone. Strato permits subdomain delegation. |
 | 2 | **Public inbound UDP/53** (and ideally TCP/53) to the HA host. | ⚠ **Unconfirmed.** Nothing answers at `198.51.100.1:53` yet — UDP times out, TCP is *refused*. The RST suggests the ISP is not dropping port 53, but a port-forward to the HA host still has to be proven with a live listener. |
 | 3 | **Stable public IP**, or dynamic DNS keeping the glue record current. | ⚠ The address is a residential FTTH line and the glue TTL is 150 s, which suggests dyndns management. **Confirm the A record for `auth.example.org` updates automatically**, or a WAN-IP change silently kills all validation. |
-| 4 | **Host port 53 actually free.** HA OS runs its own DNS plugin (CoreDNS). | Needs verification on your system; a bind conflict is a hard failure at startup. |
+| 4 | **A free host port** for the DNS listener. | ✅ **Resolved by design.** The container has its own network namespace, so listening on 53 inside it cannot clash with the host's CoreDNS — only the host-side mapping can. The app therefore maps container 53 to **host 5354** by default, and the router DNATs external 53 to 5354. DNS carries no port information in its payload, so the translation is transparent. |
 | 5 | **One CNAME per certificate domain at Strato**: `_acme-challenge.example.de. CNAME <uuid>.auth.example.de.` | Standard; created once and never changes again. |
 
 Requirement 1 is the one to settle before anything else.

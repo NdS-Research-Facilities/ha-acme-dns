@@ -75,15 +75,28 @@ python3 -m venv .venv
 .venv/bin/python tests/smoke_test.py
 ```
 
-28 checks against a live DNS listener and a live HTTP server — no mocks. Covers zone answers,
-out-of-zone refusal, negative caching, the two-value rotation, credential and cross-account
-authorisation enforcement, storage-file shape and permissions, and bootstrap idempotency.
+30 checks against a live DNS listener and a live HTTP server — no mocks. Covers zone answers,
+out-of-zone refusal, negative caching, EDNS0 echoing, the two-value rotation, credential and
+cross-account authorisation enforcement, storage-file shape and permissions, and bootstrap
+idempotency.
+
+## Ports
+
+The app maps container port 53 to **host port 5354** by default, so it never competes with Home
+Assistant's own DNS plugin — the container has its own network namespace, and only the host-side
+number can collide. Forward external UDP **and** TCP 53 to host 5354 on your router; DNS carries
+no port information in its payload, so the translation is transparent.
+
+```
+Internet :53  ──router DNAT──►  HA host :5354  ──docker──►  container :53
+```
+
+The host port is editable in the app's **Network** panel.
 
 ## Status
 
-The app is tested locally but **has not yet been run on Home Assistant hardware**. Two
-prerequisites are environment-specific and must be confirmed on your own system: inbound UDP/53
-reachability, and port 53 being free alongside Home Assistant's own DNS plugin. See
+The app is tested locally but **has not yet been run on Home Assistant hardware**. The remaining
+environment-specific prerequisite is inbound UDP/53 reachability to your router — see
 `DESIGN-python-app.md` §3.
 
 ## License

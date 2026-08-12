@@ -35,7 +35,7 @@ ZONE = "auth.example.test"
 
 os.environ["ACMEDNS_DNS_PORT"] = str(DNS_PORT)
 
-from dnslib import QTYPE, RCODE, DNSRecord  # noqa: E402
+from dnslib import EDNS0, QTYPE, RCODE, DNSRecord  # noqa: E402
 from waitress import serve  # noqa: E402
 
 from acmedns import api, dnsserver  # noqa: E402
@@ -138,6 +138,23 @@ def main() -> int:
         f"rcode={RCODE[nx.header.rcode]}",
     )
     check("SOA in authority for negative caching", len(nx.auth) == 1)
+
+    print("\n== EDNS0 ==")
+    edns_query = DNSRecord.question(ZONE, "SOA")
+    edns_query.add_ar(EDNS0(udp_len=4096))
+    edns_reply = DNSRecord.parse(
+        edns_query.send("127.0.0.1", DNS_PORT, timeout=5)
+    )
+    check(
+        "OPT echoed when the querier offers EDNS0",
+        any(rr.rtype == QTYPE.OPT for rr in edns_reply.ar),
+        f"ar={len(edns_reply.ar)}",
+    )
+    plain_reply = dns_query(ZONE, "SOA")
+    check(
+        "no OPT when the querier did not send one",
+        not any(rr.rtype == QTYPE.OPT for rr in plain_reply.ar),
+    )
 
     print("\n== registration ==")
     status, account = http_post("/register", {})

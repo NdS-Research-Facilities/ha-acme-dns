@@ -1,7 +1,7 @@
 ---
 # https://developers.home-assistant.io/docs/apps/configuration#app-configuration
 name: ACME-DNS
-version: "0.1.0"
+version: "0.1.1"
 slug: acme_dns
 description: >-
   acme-dns server and account manager, providing DNS-01 challenge support for
@@ -18,12 +18,20 @@ startup: services
 boot: auto
 map:
   - ssl:rw
+# Left of the colon is the port inside the container, right is the port on the
+# Home Assistant host. The container has its own network namespace, so listening
+# on 53 in here never collides with the host's DNS plugin -- only the host-side
+# number can. It defaults to 5354 for that reason, and is editable in the app's
+# Network panel without touching this file.
+#
+# Forward external UDP+TCP 53 to host port 5354 on your router. DNS carries no
+# port information in its payload, so the translation is transparent.
 ports:
-  53/udp: 53
-  53/tcp: 53
+  53/udp: 5354
+  53/tcp: 5354
 ports_description:
-  53/udp: DNS - must be reachable from the internet
-  53/tcp: DNS over TCP (truncated responses, some resolvers)
+  53/udp: DNS - forward external UDP 53 to this port on your router
+  53/tcp: DNS over TCP - forward external TCP 53 to this port
 # The HTTP API is deliberately absent from ports: it stays on the internal
 # Docker network, reachable only by other apps such as Let's Encrypt.
 options:
