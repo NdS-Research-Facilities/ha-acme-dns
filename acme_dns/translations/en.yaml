@@ -1,0 +1,52 @@
+---
+configuration:
+  zone:
+    name: acme-dns zone
+    description: >-
+      The delegated subdomain this app is authoritative for, e.g.
+      auth.example.org. Must match the NS record in your real DNS zone.
+  nsadmin:
+    name: Administrator e-mail
+    description: >-
+      Contact address published in the zone's SOA record. The '@' is converted
+      to '.' automatically.
+  public_ip:
+    name: Public IP address
+    description: >-
+      Your public IP, served as the zone's own A record. Leave empty to detect
+      it automatically at startup.
+  api_base:
+    name: API base URL
+    description: >-
+      URL the Let's Encrypt app uses to reach this app's HTTP API. Leave empty
+      to derive it from the container hostname.
+  domains:
+    name: Certificate domains
+    description: >-
+      Domains to pre-register acme-dns accounts for. For a wildcard use the base
+      domain (example.org, not *.example.org).
+  allow_from:
+    name: Allowed source networks
+    description: >-
+      Optional CIDR allow-list restricting which sources may update TXT records.
+      Leave empty to allow any source on the internal network.
+  api_port:
+    name: API port
+    description: >-
+      Internal HTTP port for the acme-dns API. Not published to the host.
+  disable_registration:
+    name: Disable public registration
+    description: >-
+      Leave enabled. Accounts are created internally from the domains list, so
+      the public registration endpoint is not needed.
+  verify_cname:
+    name: Verify CNAME records
+    description: >-
+      After startup, poll public DNS until the required CNAME records resolve
+      correctly and report the result in the log.
+  log_level:
+    name: Log level
+    description: Verbosity of the app log.
+network:
+  53/udp: DNS - must be reachable from the internet
+  53/tcp: DNS over TCP

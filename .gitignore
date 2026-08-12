@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+*.db
+.DS_Store
+
+# Local Claude Code settings (contain machine-specific paths)
+.claude/
+
+# Deployment notes with real domain, e-mail and public IP. Kept local on
+# purpose: this repository is public.
+MY-DEPLOYMENT.md

@@ -1,0 +1,52 @@
+---
+# https://developers.home-assistant.io/docs/apps/configuration#app-configuration
+name: ACME-DNS
+version: "0.1.0"
+slug: acme_dns
+description: >-
+  acme-dns server and account manager, providing DNS-01 challenge support for
+  the Let's Encrypt app without giving it access to your real DNS zone
+url: "https://github.com/NdS-Research-Facilities/ha-acme-dns"
+arch:
+  - aarch64
+  - amd64
+init: false
+# The DNS listener must be answering whenever Let's Encrypt validates, which is
+# not a moment we control. This app therefore runs continuously; schedule the
+# Let's Encrypt app instead.
+startup: services
+boot: auto
+map:
+  - ssl:rw
+ports:
+  53/udp: 53
+  53/tcp: 53
+ports_description:
+  53/udp: DNS - must be reachable from the internet
+  53/tcp: DNS over TCP (truncated responses, some resolvers)
+# The HTTP API is deliberately absent from ports: it stays on the internal
+# Docker network, reachable only by other apps such as Let's Encrypt.
+options:
+  zone: auth.example.org
+  nsadmin: admin@example.org
+  public_ip: ""
+  api_base: ""
+  domains: []
+  allow_from: []
+  api_port: 8080
+  disable_registration: true
+  verify_cname: true
+  log_level: info
+schema:
+  zone: str
+  nsadmin: email
+  public_ip: str?
+  api_base: str?
+  domains:
+    - str
+  allow_from:
+    - str?
+  api_port: port
+  disable_registration: bool?
+  verify_cname: bool?
+  log_level: list(trace|debug|info|warning|error)?

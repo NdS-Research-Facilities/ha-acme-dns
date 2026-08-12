@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start the acme-dns service
+# s6-overlay docs: https://github.com/just-containers/s6-overlay
+#
+# Deliberately thin: every option is read from /data/options.json by config.py,
+# so there is no per-option bashio plumbing to keep in sync with config.yaml.
+# ==============================================================================
+
+bashio::log.info "Starting acme-dns..."
+
+export PYTHONPATH=/usr/lib
+
+exec python3 -m acmedns
