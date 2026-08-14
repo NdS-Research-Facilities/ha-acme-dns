@@ -1,12 +1,17 @@
 ---
 # https://developers.home-assistant.io/docs/apps/configuration#app-configuration
 name: ACME-DNS
-version: "0.1.1"
+version: "0.2.0"
 slug: acme_dns
 description: >-
   acme-dns server and account manager, providing DNS-01 challenge support for
   the Let's Encrypt app without giving it access to your real DNS zone
 url: "https://github.com/NdS-Research-Facilities/ha-acme-dns"
+# The code is covered by 30 live checks, but has not yet run on Home Assistant
+# hardware, and inbound UDP/53 reachability cannot be verified anywhere but the
+# target network. The store shows this as a warning label with a flask icon; the
+# app stays visible and installable. Drop to stable once it has run in place.
+stage: experimental
 arch:
   - aarch64
   - amd64
