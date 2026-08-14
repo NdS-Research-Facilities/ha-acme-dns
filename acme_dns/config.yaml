@@ -1,11 +1,16 @@
 ---
 # https://developers.home-assistant.io/docs/apps/configuration#app-configuration
-name: ACME-DNS
+# Named for what it does, not for the protocol it speaks: "ACME-DNS" is
+# character-for-character upstream joohoi/acme-dns, and this is a
+# reimplementation rather than a packaging of it. The slug stays acme_dns, which
+# is internal and already matches the convention official apps use.
+name: DNS-01 letsencrypt challenge server
 version: "0.2.0"
 slug: acme_dns
 description: >-
-  acme-dns server and account manager, providing DNS-01 challenge support for
-  the Let's Encrypt app without giving it access to your real DNS zone
+  acme-dns compatible server and account manager, providing DNS-01 challenge
+  support for the Let's Encrypt app without giving it access to your real DNS
+  zone
 url: "https://github.com/NdS-Research-Facilities/ha-acme-dns"
 # The code is covered by 30 live checks, but has not yet run on Home Assistant
 # hardware, and inbound UDP/53 reachability cannot be verified anywhere but the
@@ -29,9 +34,9 @@ image: "ghcr.io/nds-research-facilities/app-acme-dns"
 init: false
 # The DNS listener must be answering whenever Let's Encrypt validates, which is
 # not a moment we control. This app therefore runs continuously; schedule the
-# Let's Encrypt app instead.
+# Let's Encrypt app instead. Starting on boot is the default, so `boot: auto` is
+# left out -- the app linter rejects options set to their default value.
 startup: services
-boot: auto
 map:
   - ssl:rw
 # Left of the colon is the port inside the container, right is the port on the
