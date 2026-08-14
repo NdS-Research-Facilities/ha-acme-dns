@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.2.0
+
+- **Pre-built images.** Installing is now a pull instead of a build on your own hardware, which
+  took minutes and failed on any transient pip or apk error. Published as a multi-architecture
+  manifest at `ghcr.io/nds-research-facilities/app-acme-dns`; the `app-` prefix follows
+  `home-assistant/apps-example`, and avoids reading as a build of upstream `joohoi/acme-dns`,
+  which this is not.
+- **AppArmor profile.** The DNS listener is self-written code reachable from the internet on port
+  53, so it now runs in a nested profile modelled on the official dnsmasq app: its own code is
+  read-only, writes are confined to `/data` and `/ssl`, and it holds only
+  `capability net_bind_service`. Network access is deliberately unrestricted — the app is a
+  network daemon, so enumerating address families would buy no security while risking an opaque
+  startup failure.
+- **Store icon and logo**, so the app no longer renders as a blank tile.
+- **Marked `stage: experimental`.** The code is covered by 30 live checks, but has still not run
+  on Home Assistant hardware, and inbound UDP/53 reachability can only be verified on the target
+  network. The store shows a warning label; the app remains installable.
+- Continuous integration on every push and pull request: the Home Assistant app linter, an
+  `apparmor_parser` syntax check (a profile that fails to compile would otherwise only break on
+  real hardware), and the existing smoke test against the same pinned dependency versions the
+  container installs.
+
 ## 0.1.1
 
 - Echo EDNS0 (OPT) back when the querier offers it. dnslib's `reply()` drops the additional
