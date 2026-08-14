@@ -2,6 +2,12 @@
 
 ## 0.2.0
 
+- **Renamed to "DNS-01 letsencrypt challenge server".** The old name was character-for-character
+  upstream `joohoi/acme-dns`, and this app is a reimplementation of that protocol rather than a
+  packaging of it. Naming it after what it does follows how official apps are named
+  ("NGINX Home Assistant SSL proxy", "Mosquitto broker"). The slug stays `acme_dns`, and the
+  storage file, module and service names keep the acme-dns spelling because those are accurate:
+  it really does speak that protocol and write the `goacmedns` storage format.
 - **Pre-built images.** Installing is now a pull instead of a build on your own hardware, which
   took minutes and failed on any transient pip or apk error. Published as a multi-architecture
   manifest at `ghcr.io/nds-research-facilities/app-acme-dns`; the `app-` prefix follows

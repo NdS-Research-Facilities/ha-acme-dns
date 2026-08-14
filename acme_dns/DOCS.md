@@ -1,7 +1,7 @@
-# ACME-DNS
+# DNS-01 letsencrypt challenge server
 
-An acme-dns server plus account manager, so the **Let's Encrypt app can solve DNS-01
-challenges without ever getting access to your real DNS zone**.
+An acme-dns compatible server plus account manager, so the **Let's Encrypt app can solve
+DNS-01 challenges without ever getting access to your real DNS zone**.
 
 Use this when your DNS provider has no usable API — for example **strato.de**, which none of
 lego's 219 providers support. Instead of handing certbot credentials to your whole zone, you

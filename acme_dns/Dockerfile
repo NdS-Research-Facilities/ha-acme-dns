@@ -19,7 +19,7 @@ RUN apk add --no-cache python3 py3-pip \
 COPY rootfs /
 
 LABEL \
-    org.opencontainers.image.title="Home Assistant App: ACME-DNS" \
-    org.opencontainers.image.description="acme-dns server and account manager for the Let's Encrypt app" \
+    org.opencontainers.image.title="Home Assistant App: DNS-01 letsencrypt challenge server" \
+    org.opencontainers.image.description="acme-dns compatible server and account manager for the Let's Encrypt app" \
     org.opencontainers.image.source="https://github.com/NdS-Research-Facilities/ha-acme-dns" \
     org.opencontainers.image.licenses="MIT"
