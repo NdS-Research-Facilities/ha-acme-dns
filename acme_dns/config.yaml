@@ -5,18 +5,18 @@
 # reimplementation rather than a packaging of it. The slug stays acme_dns, which
 # is internal and already matches the convention official apps use.
 name: DNS-01 Let's Encrypt challenge server
-version: "0.2.1"
+version: "1.0.0"
 slug: acme_dns
 description: >-
   acme-dns compatible server and account manager, providing DNS-01 challenge
   support for the Let's Encrypt app without giving it access to your real DNS
   zone
 url: "https://github.com/NdS-Research-Facilities/ha-acme-dns"
-# The code is covered by 30 live checks, but has not yet run on Home Assistant
-# hardware, and inbound UDP/53 reachability cannot be verified anywhere but the
-# target network. The store shows this as a warning label with a flask icon; the
-# app stays visible and installable. Drop to stable once it has run in place.
-stage: experimental
+# Promoted from experimental on 2026-08-15, once the app had issued a real
+# production certificate on Home Assistant hardware: a Let's Encrypt leaf
+# covering both a domain and its wildcard, validated against this server over
+# DNS-01, with the DNS provider never holding an API credential.
+stage: stable
 arch:
   - aarch64
   - amd64

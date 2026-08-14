@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.0.0
+
+- **`stage: stable`.** The app has issued a real production certificate on Home Assistant
+  hardware: a Let's Encrypt leaf covering both a domain and its wildcard, validated over DNS-01
+  against this server, chaining to an ISRG root and verifying clean — with the DNS provider never
+  holding an API credential, which is the whole point of the app.
+- That exercised the case the design turns on: apex and wildcard produce two ACME authorizations
+  whose challenge record is the *same* FQDN needing two different TXT values at once. Both SANs
+  are present on the issued certificate, so the two-value-per-account behaviour works as intended
+  against a real CA rather than only in the smoke test.
+- Also verified in place: SOA answered over both UDP and TCP on the mapped host port, the zone's
+  own A record tracking a dynamic public IP detected at startup, the delegation resolving through
+  three independent public resolvers, and account bootstrap minting a fresh subdomain with the
+  CNAME verification loop confirming it.
+- 1.0.0 rather than 0.3.0 because the version now means something specific: the documented flow
+  has been executed against the production Let's Encrypt API, not just tested.
+
+  Renewal has not yet run — the first is due before the certificate expires 90 days out.
+
 ## 0.2.1
 
 - **Fix the app failing to start with `No module named acmedns`.** The AppArmor profile granted

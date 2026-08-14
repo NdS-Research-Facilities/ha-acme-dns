@@ -96,9 +96,14 @@ The host port is editable in the app's **Network** panel.
 
 ## Status
 
-The app is tested locally but **has not yet been run on Home Assistant hardware**. The remaining
-environment-specific prerequisite is inbound UDP/53 reachability to your router — see
-`DESIGN-python-app.md` §3.
+**Running in production.** As of 2026-08-15 the app has issued a real Let's Encrypt certificate
+on Home Assistant hardware, covering both a domain and its wildcard, validated over DNS-01
+against this server — with the DNS provider never holding an API credential. Marked
+`stage: stable` as of 1.0.0.
+
+The one environment-specific prerequisite remains inbound UDP/53 reachability to your router,
+which no amount of testing here can establish for your network — see `DESIGN-python-app.md` §3.
+Renewal has not yet been exercised; the first falls due 90 days after issuance.
 
 ## License
 
