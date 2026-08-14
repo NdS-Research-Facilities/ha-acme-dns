@@ -9,6 +9,6 @@
 
 bashio::log.info "Starting acme-dns..."
 
-export PYTHONPATH=/usr/lib
-
-exec python3 -m acmedns
+# Via /usr/sbin/acme-dns rather than python3 directly, so AppArmor can attach
+# the service's nested profile to an exact path. See apparmor.txt.
+exec /usr/sbin/acme-dns

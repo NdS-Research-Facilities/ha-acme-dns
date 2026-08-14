@@ -1,0 +1,18 @@
+#!/bin/sh
+# ==============================================================================
+# Entry point for the acme-dns service.
+#
+# This exists so AppArmor has a stable, exact path to attach the service's
+# nested profile to. Transitioning on the interpreter instead does not work:
+# /usr/bin/python3 is a symlink to a versioned binary, so a rule would have to
+# glob (/usr/bin/python3.*), and a glob cannot be merged with the outer
+# profile's /usr/bin/** rule -- apparmor_parser rejects the conflicting exec
+# modifiers outright. Pinning the versioned path would compile but silently
+# stop confining the service whenever the Alpine base image bumps Python.
+#
+# See apparmor.txt, and the official dnsmasq app, which attaches the same way.
+# ==============================================================================
+
+export PYTHONPATH=/usr/lib
+
+exec python3 -m acmedns
