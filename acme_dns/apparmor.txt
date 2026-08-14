@@ -1,0 +1,88 @@
+#include <tunables/global>
+
+# The outer profile covers s6-overlay and bashio, which is what runs as PID 1 in
+# the container. It is the example profile from home-assistant/apps-example,
+# unchanged apart from the profile name -- there is no reason for this app's
+# supervision tree to differ from the reference one.
+#
+# The interesting part is the nested `acmedns` profile below. The DNS listener is
+# self-written code reachable from the internet on port 53, so confining what it
+# can touch on disk and execute is worth more here than in a typical app. It is
+# modelled on the official dnsmasq app's profile, which solves the same problem.
+profile acme_dns flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # Capabilities
+  file,
+  signal (send) set=(kill,term,int,hup,cont),
+
+  # S6-Overlay
+  /init ix,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+  /run/{,**} rwk,
+  /dev/tty rw,
+
+  # Bashio
+  /usr/lib/bashio/** ix,
+  /tmp/** rwk,
+
+  # Access to options.json and other files within your app
+  /data/** rw,
+
+  # Start a new profile for the service itself. Alpine ships /usr/bin/python3 as
+  # a symlink to python3.<minor> and AppArmor attaches on the resolved path, so
+  # both spellings are matched.
+  /usr/bin/python3{,.*} cx -> acmedns,
+
+  profile acmedns flags=(attach_disconnected,mediate_deleted) {
+    #include <abstractions/base>
+    # /etc/hosts, /etc/resolv.conf, /etc/nsswitch.conf, /etc/passwd -- needed to
+    # resolve names for CNAME verification and public-IP detection.
+    #include <abstractions/nameservice>
+
+    # Receive signals from S6-Overlay
+    signal (receive) peer=*_acme_dns,
+
+    # Binding 53/udp and 53/tcp is a privileged port even though the container's
+    # own network namespace makes it collision-free. The HTTP API does not need
+    # this; the DNS listener does.
+    capability net_bind_service,
+
+    # Deliberately unrestricted: this app is a network daemon whose entire job is
+    # to answer DNS on 53 and serve the API, and it makes outbound HTTPS and DNS
+    # queries of its own. Enumerating address families would buy no security here
+    # while risking a hard-to-diagnose startup failure. The confinement value of
+    # this profile is in the file and exec rules instead.
+    network,
+
+    # The interpreter and this app's own code, read-only -- the code ships in the
+    # image and must not be writable at runtime.
+    /usr/bin/python3{,.*} rm,
+    /usr/lib/python3*/** r,
+    /usr/lib/acmedns/** r,
+
+    # options.json written by the Supervisor, plus the SQLite account database.
+    # `k` is required: SQLite takes POSIX locks on the database and its journal.
+    /data/ r,
+    /data/** rwk,
+
+    # The goacmedns storage file the Let's Encrypt app reads, via the ssl:rw map
+    # in config.yaml. Written to a temporary file and renamed, so the directory
+    # itself must be writable as well.
+    /ssl/ r,
+    /ssl/** rwk,
+
+    # TLS trust store for the outbound public-IP lookup over HTTPS.
+    /etc/ssl/** r,
+
+    /proc/* r,
+    /dev/tty rw,
+  }
+}
