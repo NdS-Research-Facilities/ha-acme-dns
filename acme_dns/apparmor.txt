@@ -74,8 +74,19 @@ profile acme_dns flags=(attach_disconnected,mediate_deleted) {
 
     # This app's own code, read-only -- it ships in the image and must not be
     # writable at runtime.
-    /usr/lib/python3*/** r,
+    #
+    # The trailing-slash rules are load-bearing, not tidiness. Python's import
+    # machinery calls listdir() on every sys.path entry, and AppArmor mediates
+    # readdir through the directory's own path, which `dir/**` does not cover.
+    # Without `/usr/lib/ r` the listing of PYTHONPATH=/usr/lib is denied, and
+    # because FileFinder swallows EACCES and treats the directory as empty, the
+    # failure surfaces as a bare "No module named acmedns" with no hint of
+    # AppArmor being involved.
+    /usr/lib/ r,
+    /usr/lib/acmedns/ r,
     /usr/lib/acmedns/** r,
+    /usr/lib/python3*/ r,
+    /usr/lib/python3*/** r,
 
     # options.json written by the Supervisor, plus the SQLite account database.
     # `k` is required: SQLite takes POSIX locks on the database and its journal.

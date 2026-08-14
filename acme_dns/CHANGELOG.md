@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.1
+
+- **Fix the app failing to start with `No module named acmedns`.** The AppArmor profile granted
+  `/usr/lib/acmedns/** r` but nothing for `/usr/lib/` itself. Python's import machinery calls
+  `listdir()` on every `sys.path` entry — `/usr/lib` arrives via `PYTHONPATH` — and AppArmor
+  mediates `readdir` through the directory's own path, which a `dir/**` rule does not cover. The
+  listing was denied, `FileFinder` swallowed the `EACCES` and treated the directory as empty, so
+  the denial surfaced as a plain import error naming no cause. Directory rules added for
+  `/usr/lib/`, `/usr/lib/acmedns/` and `/usr/lib/python3*/`.
+
+  Worth noting for future profile edits: the `apparmor_parser` check in CI proves a profile
+  compiles, not that it permits what the app does at runtime. This one compiled cleanly.
+
 ## 0.2.0
 
 - **Renamed to "DNS-01 Let's Encrypt challenge server".** The old name was character-for-character
