@@ -10,3 +10,7 @@ __pycache__/
 # Deployment notes with real domain, e-mail and public IP. Kept local on
 # purpose: this repository is public.
 MY-DEPLOYMENT.md
+
+# Saved session transcripts. Same reason: they quote the deployment notes
+# verbatim, so they carry the same real domain, e-mail and public IP.
+CHAT-HISTORY.txt
