@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0
+
+- **Runs on 32-bit hardware: `armv7` and `i386` added.** Nothing in this app compiles — all three
+  dependencies are pure Python — so the only cost is build time.
+- Those two build against **Alpine 3.22** while 64-bit stays on 3.23, because upstream stopped
+  publishing `armv7-base` and `i386-base` at 3.23 (`:3.23` returns 404 from the registry, `:3.22`
+  returns 200). The split is harmless here since only the interpreter version differs, and
+  `apparmor.txt` matches it with a `/usr/lib/python3*/**` glob rather than a pinned path. Worth
+  revisiting: upstream dropping 32-bit bases may signal those architectures are being wound down.
+
+  A new version rather than a re-push of 0.2.0, so the published tag keeps pointing at the image
+  that was actually released under it.
+
 ## 0.2.0
 
 - **Renamed to "DNS-01 Let's Encrypt challenge server".** The old name was character-for-character

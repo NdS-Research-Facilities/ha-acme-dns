@@ -1,4 +1,16 @@
 ---
+# The 32-bit bases lag deliberately: upstream stopped publishing armv7-base and
+# i386-base at Alpine 3.23, so 3.22 is the newest available for them. Verified by
+# probing the registry -- ghcr.io/home-assistant/{armv7,i386}-base:3.23 return
+# 404 while :3.22 returns 200.
+#
+# A per-arch split is fine here because nothing in this app compiles: the three
+# dependencies are pure Python, so only the interpreter version differs, and
+# apparmor.txt matches it with a /usr/lib/python3*/** glob rather than a pinned
+# path. Revisit when upstream either resumes 32-bit bases or drops those
+# architectures outright.
 build_from:
   aarch64: ghcr.io/home-assistant/aarch64-base:3.23
   amd64: ghcr.io/home-assistant/amd64-base:3.23
+  armv7: ghcr.io/home-assistant/armv7-base:3.22
+  i386: ghcr.io/home-assistant/i386-base:3.22

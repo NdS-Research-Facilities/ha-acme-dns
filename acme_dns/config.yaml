@@ -5,7 +5,7 @@
 # reimplementation rather than a packaging of it. The slug stays acme_dns, which
 # is internal and already matches the convention official apps use.
 name: DNS-01 Let's Encrypt challenge server
-version: "0.2.0"
+version: "0.3.0"
 slug: acme_dns
 description: >-
   acme-dns compatible server and account manager, providing DNS-01 challenge
@@ -17,9 +17,14 @@ url: "https://github.com/NdS-Research-Facilities/ha-acme-dns"
 # target network. The store shows this as a warning label with a flask icon; the
 # app stays visible and installable. Drop to stable once it has run in place.
 stage: experimental
+# Nothing in this app compiles -- the three dependencies are pure Python -- so
+# 32-bit hardware costs only build time. Their base images lag one Alpine release
+# behind; see build.yaml.
 arch:
   - aarch64
   - amd64
+  - armv7
+  - i386
 # Pre-built images, so installing is a pull rather than a build on the user's
 # hardware. This is a multi-architecture manifest: CI publishes one per-arch
 # image (aarch64-app-acme-dns, amd64-app-acme-dns) and then a manifest under this

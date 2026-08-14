@@ -64,9 +64,9 @@ If you only want a certificate and do not specifically want to run DNS yourself,
 - acme-dns-compatible HTTP API (`POST /register`, `POST /update`, `GET /health`).
 - Account pre-registration, printed CNAME instructions, and **bounded** CNAME verification.
 - Writes the `goacmedns` storage file lego reads, under both the base and wildcard keys.
-- Pure Python, no compiled dependencies — works on `aarch64` and `amd64`. (Upstream acme-dns
-  v2.0.2 publishes only a `linux_amd64` binary, which is why this is a reimplementation rather
-  than a wrapper.)
+- Pure Python, no compiled dependencies — works on `aarch64`, `amd64`, `armv7` and `i386`.
+  (Upstream acme-dns v2.0.2 publishes only a `linux_amd64` binary, which is why this is a
+  reimplementation rather than a wrapper.)
 
 ## Tests
 
