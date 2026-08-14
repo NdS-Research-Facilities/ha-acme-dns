@@ -4,7 +4,7 @@
 # character-for-character upstream joohoi/acme-dns, and this is a
 # reimplementation rather than a packaging of it. The slug stays acme_dns, which
 # is internal and already matches the convention official apps use.
-name: DNS-01 letsencrypt challenge server
+name: DNS-01 Let's Encrypt challenge server
 version: "0.2.0"
 slug: acme_dns
 description: >-

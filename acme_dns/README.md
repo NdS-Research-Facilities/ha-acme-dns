@@ -1,4 +1,4 @@
-# Home Assistant App: DNS-01 letsencrypt challenge server
+# Home Assistant App: DNS-01 Let's Encrypt challenge server
 
 acme-dns compatible server and account manager, providing DNS-01 challenge support for the
 Let's Encrypt app without giving it access to your real DNS zone.

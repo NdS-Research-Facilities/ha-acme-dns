@@ -2,7 +2,7 @@
 
 ## 0.2.0
 
-- **Renamed to "DNS-01 letsencrypt challenge server".** The old name was character-for-character
+- **Renamed to "DNS-01 Let's Encrypt challenge server".** The old name was character-for-character
   upstream `joohoi/acme-dns`, and this app is a reimplementation of that protocol rather than a
   packaging of it. Naming it after what it does follows how official apps are named
   ("NGINX Home Assistant SSL proxy", "Mosquitto broker"). The slug stays `acme_dns`, and the
