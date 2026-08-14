@@ -36,10 +36,11 @@ profile acme_dns flags=(attach_disconnected,mediate_deleted) {
   # Access to options.json and other files within your app
   /data/** rw,
 
-  # Start a new profile for the service itself. Alpine ships /usr/bin/python3 as
-  # a symlink to python3.<minor> and AppArmor attaches on the resolved path, so
-  # both spellings are matched.
-  /usr/bin/python3{,.*} cx -> acmedns,
+  # Start a new profile for the service itself. The path is exact and outside
+  # /usr/bin on purpose: a glob here (which /usr/bin/python3 would require, being
+  # a symlink to a versioned binary) cannot be merged with the /usr/bin/** rule
+  # above, and apparmor_parser rejects the conflicting exec modifiers.
+  /usr/sbin/acme-dns cx -> acmedns,
 
   profile acmedns flags=(attach_disconnected,mediate_deleted) {
     #include <abstractions/base>
@@ -62,9 +63,17 @@ profile acme_dns flags=(attach_disconnected,mediate_deleted) {
     # this profile is in the file and exec rules instead.
     network,
 
-    # The interpreter and this app's own code, read-only -- the code ships in the
-    # image and must not be writable at runtime.
-    /usr/bin/python3{,.*} rm,
+    # The wrapper this profile is attached to, the shell that interprets its
+    # shebang (Alpine's /bin/sh is busybox), and the interpreter it execs.
+    # Globbing python3.* is safe here: unlike the outer profile, this one has no
+    # /usr/bin/** rule for it to conflict with.
+    /usr/sbin/acme-dns r,
+    /bin/sh rix,
+    /bin/busybox rix,
+    /usr/bin/python3{,.*} mrix,
+
+    # This app's own code, read-only -- it ships in the image and must not be
+    # writable at runtime.
     /usr/lib/python3*/** r,
     /usr/lib/acmedns/** r,
 
