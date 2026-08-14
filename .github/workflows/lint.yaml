@@ -1,0 +1,64 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  find:
+    name: Find apps
+    runs-on: ubuntu-latest
+    outputs:
+      addons: ${{ steps.addons.outputs.addons_list }}
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+
+      - name: 🔍 Find app directories
+        id: addons
+        uses: home-assistant/actions/helpers/find-addons@master
+
+  lint:
+    name: Lint app ${{ matrix.path }}
+    runs-on: ubuntu-latest
+    needs: find
+    strategy:
+      matrix:
+        path: ${{ fromJson(needs.find.outputs.addons) }}
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+
+      - name: 🚀 Run Home Assistant App Lint
+        uses: frenck/action-addon-linter@v2.21
+        with:
+          path: "./${{ matrix.path }}"
+
+  apparmor:
+    name: Validate AppArmor profile ${{ matrix.path }}
+    runs-on: ubuntu-latest
+    needs: find
+    strategy:
+      matrix:
+        path: ${{ fromJson(needs.find.outputs.addons) }}
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+
+      - name: 🛡️ Parse profile without loading it
+        # A profile that fails to compile stops the app from starting, and the
+        # failure only shows up on Home Assistant hardware. apparmor_parser is
+        # preinstalled on the runners; -Q parses and discards instead of loading
+        # into the kernel, so this is a pure syntax and include check.
+        run: |
+          if [[ ! -f "${{ matrix.path }}/apparmor.txt" ]]; then
+            echo "No apparmor.txt in ${{ matrix.path }}, nothing to validate."
+            exit 0
+          fi
+          sudo apparmor_parser -Q --warn=all "${{ matrix.path }}/apparmor.txt"

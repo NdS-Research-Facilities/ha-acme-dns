@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v7.0.1
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: 📦 Install runtime dependencies
+        # Same pinned versions the Dockerfile installs, so the test exercises
+        # what actually ships.
+        run: pip install dnslib==0.9.26 flask==3.1.3 waitress==3.0.2
+
+      - name: 🚀 Run smoke test
+        # Binds a real DNS listener and HTTP server on 127.0.0.1:15353/18080 --
+        # both unprivileged, so no extra runner capabilities are needed.
+        run: python tests/smoke_test.py
