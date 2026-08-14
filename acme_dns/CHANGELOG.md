@@ -2,7 +2,10 @@
 
 ## 1.0.0
 
-- **`stage: stable`.** The app has issued a real production certificate on Home Assistant
+- **Promoted to stable**, which the app linter requires be expressed by *removing* `stage`
+  rather than setting it to `stable` — that is the default value, and default-valued options are
+  rejected, the same rule that keeps `boot: auto` out of the file. The store drops the
+  experimental warning label either way. The app has issued a real production certificate on Home Assistant
   hardware: a Let's Encrypt leaf covering both a domain and its wildcard, validated over DNS-01
   against this server, chaining to an ISRG root and verifying clean — with the DNS provider never
   holding an API credential, which is the whole point of the app.
