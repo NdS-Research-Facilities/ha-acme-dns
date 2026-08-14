@@ -10,6 +10,17 @@ url: "https://github.com/NdS-Research-Facilities/ha-acme-dns"
 arch:
   - aarch64
   - amd64
+# Pre-built images, so installing is a pull rather than a build on the user's
+# hardware. This is a multi-architecture manifest: CI publishes one per-arch
+# image (aarch64-app-acme-dns, amd64-app-acme-dns) and then a manifest under this
+# plain name, so no {arch} placeholder is needed here. build.yaml is used only by
+# CI.
+#
+# The app- prefix follows home-assistant/apps-example, and keeps the name from
+# reading as a build of upstream joohoi/acme-dns, which this is not.
+#
+# Nothing installs until that manifest exists -- see .github/workflows/.
+image: "ghcr.io/nds-research-facilities/app-acme-dns"
 init: false
 # The DNS listener must be answering whenever Let's Encrypt validates, which is
 # not a moment we control. This app therefore runs continuously; schedule the
