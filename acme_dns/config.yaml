@@ -16,7 +16,10 @@ url: "https://github.com/NdS-Research-Facilities/ha-acme-dns"
 # production certificate on Home Assistant hardware: a Let's Encrypt leaf
 # covering both a domain and its wildcard, validated against this server over
 # DNS-01, with the DNS provider never holding an API credential.
-stage: stable
+#
+# Stable is expressed by omitting `stage` entirely -- it is the default value,
+# and the app linter rejects options set to their default, the same rule that
+# keeps `boot: auto` out of this file.
 arch:
   - aarch64
   - amd64
