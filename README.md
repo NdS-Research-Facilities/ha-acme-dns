@@ -1,6 +1,6 @@
 # ha-acme-dns
 
-A Home Assistant app repository containing the **DNS-01 letsencrypt challenge server**: a self-hosted
+A Home Assistant app repository containing the **DNS-01 Let's Encrypt challenge server**: a self-hosted
 [acme-dns](https://github.com/joohoi/acme-dns) server *and* account manager in one app, so the
 official **Let's Encrypt app can solve DNS-01 challenges without ever getting credentials for
 your real DNS zone**.
@@ -20,7 +20,7 @@ Home Assistant → **Settings → Add-ons → Add-on store → ⋮ → Repositor
 https://github.com/NdS-Research-Facilities/ha-acme-dns
 ```
 
-Then install **DNS-01 letsencrypt challenge server** and follow
+Then install **DNS-01 Let's Encrypt challenge server** and follow
 [`acme_dns/DOCS.md`](acme_dns/DOCS.md).
 
 ## How it works

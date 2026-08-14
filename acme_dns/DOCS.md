@@ -1,4 +1,4 @@
-# DNS-01 letsencrypt challenge server
+# DNS-01 Let's Encrypt challenge server
 
 An acme-dns compatible server plus account manager, so the **Let's Encrypt app can solve
 DNS-01 challenges without ever getting access to your real DNS zone**.
