@@ -47,6 +47,17 @@ These are outside the app and must be in place, or nothing works:
 
 4. **A dynamic-DNS updater** keeping the glue `A` record current, unless your IP is static.
 
+## Installing
+
+Home Assistant → **Settings → Add-ons → Add-on store → ⋮ → Repositories**, add:
+
+```
+https://github.com/NdS-Research-Facilities/ha-acme-dns
+```
+
+Then install **DNS-01 Let's Encrypt challenge server**. It pulls a pre-built image rather than
+building on your hardware, so it takes seconds.
+
 ## Configuration
 
 ```yaml
@@ -119,6 +130,65 @@ log_level: info
 
 6. Once staging works, remove `test_cert` and run the Let's Encrypt app again.
 
+## Verifying, without fooling yourself
+
+Three checks, in order. Each one rules out a different layer, and each has a way of producing a
+confident wrong answer.
+
+**1. The app answers on the host port**, over *both* protocols — TCP is the one people forget:
+
+```
+dig -p 5354 @<ha-host-lan-ip> SOA auth.example.org
+dig +tcp -p 5354 @<ha-host-lan-ip> SOA auth.example.org
+```
+
+**2. The delegation resolves from outside.** Ask public recursive resolvers — they sit outside
+your network, so if they can follow the chain, so can Let's Encrypt:
+
+```
+for r in 1.1.1.1 8.8.8.8 9.9.9.9; do dig @$r SOA auth.example.org; done
+```
+
+**Do not test this by querying your own public IP from inside your LAN.** Most routers do not
+SNAT hairpinned traffic, so the reply comes back stamped with the internal address and `dig`
+discards it:
+
+```
+;; reply from unexpected source: 192.168.1.50#5354, expected 203.0.113.10#53
+```
+
+That looks like a broken port forward and is nothing of the kind — it is proof the forward
+*worked*, since the packet reached the host. Over TCP the same situation appears as a plain
+timeout, which is indistinguishable from a genuinely missing forward. The only reliable external
+TCP test is from off-network, e.g. a phone on mobile data:
+`dig +tcp @<your-public-ip> SOA auth.example.org`.
+
+**3. The issued certificate is real.** After the Let's Encrypt app runs:
+
+```
+openssl s_client -connect ha.example.org:8123 -servername ha.example.org </dev/null \
+  | openssl x509 -noout -subject -issuer -dates -ext subjectAltName
+```
+
+The issuer must be a Let's Encrypt intermediate, **not** one with `(STAGING)` in the name, and
+both `example.org` and `*.example.org` should appear under Subject Alternative Name if you
+requested both.
+
+Note that macOS has no `timeout` binary. Wrapping that command in `timeout 15 …` makes the shell
+fail with "command not found", and any `|| echo "no TLS"` fallback then reports a completely
+convincing false negative on a server that is working fine. Use `gtimeout` from coreutils, or no
+bound at all.
+
+## Back up `/data` — it holds your account
+
+`/data/acme-dns.db` holds the account whose UUID your CNAME points at. Reinstalling the app, or
+otherwise losing that volume, mints a **new** account: bootstrap prints a different
+`<uuid>.auth.example.org`, the CNAME in your real zone now points at a subdomain that no longer
+exists, and every validation fails until you repoint it.
+
+That is one record to edit, so it is a nuisance rather than a disaster — but if you would rather
+never touch your provider's DNS again, back that file up and restore it before the first start.
+
 ## Ports and the CoreDNS conflict
 
 **You do not need host port 53, and the app never competes with Home Assistant's own DNS
@@ -185,4 +255,7 @@ an automation calling `hassio.addon_start` once a day.
 | `dig` works locally but not from outside | Port forward missing, or the ISP blocks 53. |
 | Log keeps saying "Waiting for N CNAME record(s)" | The CNAME is missing or points somewhere else. |
 | Let's Encrypt app: "no such domain in storage" | `domains` here must match the app's `domains` there — use the base domain for wildcards. |
-| Let's Encrypt app cannot reach the API | Use the `ACME_DNS_API_BASE` value printed in this log, or the host's LAN IP. |
+| Let's Encrypt app cannot reach the API | Use the `ACME_DNS_API_BASE` value printed in this log. The host's LAN IP will **not** work: `api_port` is deliberately absent from `ports:`, so the API is never published to the host and is reachable only by container name on the internal Docker network. If that name will not resolve, publish `api_port`. |
+| Validation fails after reinstalling the app | `/data` was lost, so the account UUID changed. Repoint the CNAME at the new target in the log — see "Back up `/data`". |
+| `No module named acmedns` | An AppArmor denial, not a packaging fault. Fixed in 0.2.1; if you edit `apparmor.txt`, note that Python calls `listdir()` on every `sys.path` entry and AppArmor mediates `readdir` through the directory's *own* path, so `dir/** r` is not enough — `dir/ r` is also required. `FileFinder` swallows the `EACCES` and reports the directory as empty, which is why a confinement failure surfaces as a bare import error. |
+| Certificate checks report "no TLS" on a working server | See "Verifying, without fooling yourself" — usually `timeout` missing on macOS rather than anything wrong with the server. |
