@@ -14,3 +14,9 @@ MY-DEPLOYMENT.md
 # Saved session transcripts. Same reason: they quote the deployment notes
 # verbatim, so they carry the same real domain, e-mail and public IP.
 CHAT-HISTORY.txt
+
+# Affinity Photo working documents. The flattened export (acme_dns/Acme-DNS.png)
+# is tracked instead — it is what icon.png and logo.png are derived from, and it
+# is a fraction of the size with no editor lock files to trip over.
+*.afphoto
+*.afphoto~lock~
