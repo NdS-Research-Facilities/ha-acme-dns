@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0
+
+- **New store artwork.** `logo.png` and `icon.png` are now derived from a single master
+  (`acme_dns/Acme-DNS.png`), whose wordmark carries the app's current name — "DNS-01 Let's
+  Encrypt challenge server" — where the previous artwork still read "ACME Corporation", a
+  leftover from before the 0.2.0 rename.
+- The logo is the master scaled to 250×83, within the 250×100 the store allows. The icon cannot
+  be: the master is a ~4:1 banner and `icon.png` is square, so the wordmark is set at full width
+  with "DNS-01" beneath it — the same two-line arrangement the old icon used for "CORPORATION".
+  Both keep their alpha channel, so they sit on either store theme.
+- No functional change. The version bump is here because `config.yaml` is a monitored file, so
+  merging republishes the image tag; nothing in `Dockerfile` or `rootfs/` moved, and the app
+  itself is byte-for-byte 1.0.0.
+- The Affinity Photo document these were cut from is gitignored. The flattened PNG is tracked
+  in its place, so the derivation stays reproducible without carrying a 600 KB editor file.
+
 ## 1.0.0
 
 - **Promoted to stable**, which the app linter requires be expressed by *removing* `stage`

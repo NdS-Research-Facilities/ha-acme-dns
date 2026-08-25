@@ -5,7 +5,7 @@
 # reimplementation rather than a packaging of it. The slug stays acme_dns, which
 # is internal and already matches the convention official apps use.
 name: DNS-01 Let's Encrypt challenge server
-version: "1.0.0"
+version: "1.1.0"
 slug: acme_dns
 description: >-
   acme-dns compatible server and account manager, providing DNS-01 challenge
