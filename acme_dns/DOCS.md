@@ -49,7 +49,7 @@ These are outside the app and must be in place, or nothing works:
 
 ## Installing
 
-Home Assistant → **Settings → Add-ons → Add-on store → ⋮ → Repositories**, add:
+Home Assistant → **Settings → Apps → Install App → App store → ⋮ → Repositories**, add:
 
 ```
 https://github.com/NdS-Research-Facilities/ha-acme-dns

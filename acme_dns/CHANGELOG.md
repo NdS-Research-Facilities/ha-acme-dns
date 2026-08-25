@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.1
+
+- **Installation path follows Home Assistant's rename of add-ons to apps.** The store is now
+  reached through **Settings → Apps → Install App → App store → ⋮ → Repositories**. `README.md`
+  had already been corrected; `DOCS.md` carried the same stale wording and is the copy Supervisor
+  renders in the app's Documentation tab, so it is fixed here too.
+- Documentation only — no functional change, and no configuration or DNS behaviour differs from
+  1.1.0.
+
 ## 1.1.0
 
 - **New store artwork.** `logo.png` and `icon.png` are now derived from a single master
